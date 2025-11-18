@@ -3,6 +3,10 @@ spring:
     name: billing-service
   profiles:
     active: prod
+  grpc:
+    server:
+      enabled: true
+      port: 9001
 server:
   port: 4002
   error:

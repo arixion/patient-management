@@ -20,6 +20,18 @@ services:
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_SQL_INIT_MODE=always
 
+  billing-service:
+    build:
+      context: ./billing-service
+      dockerfile: Dockerfile-service
+    container_name: billing-service
+    image: local/billing-service:dev
+    ports:
+      - "4002:4002"
+      - "9001:9001"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+
   patient-db:
     build:
       context: ./patient-service
