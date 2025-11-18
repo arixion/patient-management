@@ -6,12 +6,15 @@ services:
     container_name: patient-service
     image: local/patient-service:dev
     networks:
-      - patient_service_backend_network
+      - patient_service_db_network
+      - patient_service_grpc_network
     ports:
       - "4001:4001"
     depends_on:
       patient-db:
         condition: service_healthy
+      billing-service:
+        condition: service_started
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=jdbc:mysql://patient-db:3306/patient_db
@@ -19,6 +22,8 @@ services:
       - SPRING_DATASOURCE_PASSWORD=patient_service_password
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_SQL_INIT_MODE=always
+      - BILLING_SERVICE_ADDRESS=billing-service
+      - BILLING_SERVICE_GRPC_PORT=9001
 
   billing-service:
     build:
@@ -29,6 +34,8 @@ services:
     ports:
       - "4002:4002"
       - "9001:9001"
+    networks:
+      - patient_service_grpc_network
     environment:
       - SPRING_PROFILES_ACTIVE=prod
 
@@ -39,7 +46,7 @@ services:
     container_name: patient-db
     image: local/patient-db:dev
     networks:
-      - patient_service_backend_network
+      - patient_service_db_network
     ports:
       - "3001:3306"
     healthcheck:
@@ -56,9 +63,11 @@ services:
       - MYSQL_PASSWORD=patient_service_password
 
 networks:
-  patient_service_backend_network:
+  patient_service_db_network:
     driver: bridge
 #    internal: true
+  patient_service_grpc_network:
+    driver: bridge
 
 volumes:
   patient-db-data:

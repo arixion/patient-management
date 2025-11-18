@@ -1,10 +1,12 @@
 package com.pm.patientservice.service;
 
+import billing.BillingResponse;
 import com.pm.patientservice.dto.PatientRequestDTO;
 import com.pm.patientservice.dto.PatientResponseDTO;
 import com.pm.patientservice.dto.PatientUpdateRequestDTO;
 import com.pm.patientservice.exception.EmailAlreadyRegisteredException;
 import com.pm.patientservice.exception.PatientNotFoundException;
+import com.pm.patientservice.grpc.BillingServiceGrpcClient;
 import com.pm.patientservice.mapper.PatientMapper;
 import com.pm.patientservice.model.Patient;
 import com.pm.patientservice.repo.PatientRepository;
@@ -29,6 +31,7 @@ public class PatientService {
 
     private static final Logger logger = LoggerFactory.getLogger(PatientService.class);
     private @Autowired PatientRepository patientRepository;
+    private @Autowired BillingServiceGrpcClient billingServiceGrpcClient;
 
     /**
      * Retrieves all patients from the database and converts them to PatientResponseDTO
@@ -62,7 +65,8 @@ public class PatientService {
         Patient patient = PatientMapper.toEntity(patientRequestDTO);
         // Save to database
         Patient savedPatient = patientRepository.save(patient);
-        logger.info("Successfully created patient with ID: {}", savedPatient.getId());
+        BillingResponse billingResponse = billingServiceGrpcClient.createBillingAccount(savedPatient.getId().toString(), savedPatient.getName(), savedPatient.getEmail());
+        logger.info("Successfully created patient with ID: {},\nBilling details:\n{}\n ", savedPatient.getId(), billingResponse);
         // Convert entity to response DTO
         return PatientMapper.toResponseDTO(savedPatient);
     }
