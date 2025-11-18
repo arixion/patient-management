@@ -202,10 +202,10 @@
 
     <!-- Production Profile: Less verbose logging -->
     <springProfile name="prod">
-        <logger name="com.pm.patientservice" level="TRACE"/>
-        <logger name="org.springframework.web" level="TRACE"/>
-        <logger name="org.hibernate.SQL" level="TRACE"/>
-        <root level="TRACE"/>
+        <logger name="com.pm.patientservice" level="INFO"/>
+        <logger name="org.springframework.web" level="ERROR"/>
+        <logger name="org.hibernate.SQL" level="ERROR"/>
+        <root level="INFO"/>
     </springProfile>
 
     <!-- Test Profile: Minimal logging -->
