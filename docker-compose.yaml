@@ -1,0 +1,35 @@
+services:
+  patient-service:
+    build:
+      context: ./patient-service
+      dockerfile: Dockerfile-service
+    container_name: patient-service
+    image: local/patient-service:dev
+    ports:
+      - "4001:4001"
+    depends_on:
+      - patient-db
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - DATABASE_URL=jdbc:mysql://db:3001/patient_db
+      - DATABASE_USERNAME=patient_service_user
+      - DATABASE_PASSWORD=patient_service_password
+
+  patient-db:
+    build:
+      context: ./patient-service
+      dockerfile: Dockerfile-db
+    container_name: patient-db
+    image: local/patient-db:dev
+    ports:
+      - "3001:3306"
+    volumes:
+      - ./db-data/patient-db-data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=patient_db
+      - MYSQL_USER=patient_service_user
+      - MYSQL_PASSWORD=patient_service_password
+
+volumes:
+  patient-db-data:
