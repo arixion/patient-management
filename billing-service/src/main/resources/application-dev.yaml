@@ -1,0 +1,13 @@
+server:
+  port: 4002
+  error:
+    include-message: always
+    whitelabel:
+      enabled: true
+spring:
+  application:
+    name: billing-service
+  grpc:
+    server:
+      enabled: true
+      port: 9001
