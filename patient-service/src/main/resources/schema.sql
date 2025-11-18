@@ -1,5 +1,5 @@
 create table if not exists `patients` (
-  `id` uuid not null comment 'Unique identifier for the patient',
+  `id` binary(16) not null comment 'Unique identifier for the patient',
   `name` varchar(255) not null comment 'Full name of the patient',
   `address` varchar(500) comment 'Residential address of the patient',
   `date_of_birth` date not null comment 'Date of birth of the patient',

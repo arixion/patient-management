@@ -5,15 +5,20 @@ services:
       dockerfile: Dockerfile-service
     container_name: patient-service
     image: local/patient-service:dev
+    networks:
+      - patient_service_backend_network
     ports:
       - "4001:4001"
     depends_on:
-      - patient-db
+      patient-db:
+        condition: service_healthy
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      - DATABASE_URL=jdbc:mysql://db:3001/patient_db
-      - DATABASE_USERNAME=patient_service_user
-      - DATABASE_PASSWORD=patient_service_password
+      - SPRING_DATASOURCE_URL=jdbc:mysql://patient-db:3306/patient_db
+      - SPRING_DATASOURCE_USERNAME=patient_service_user
+      - SPRING_DATASOURCE_PASSWORD=patient_service_password
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_SQL_INIT_MODE=always
 
   patient-db:
     build:
@@ -21,8 +26,15 @@ services:
       dockerfile: Dockerfile-db
     container_name: patient-db
     image: local/patient-db:dev
+    networks:
+      - patient_service_backend_network
     ports:
       - "3001:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     volumes:
       - ./db-data/patient-db-data:/var/lib/mysql
     environment:
@@ -30,6 +42,11 @@ services:
       - MYSQL_DATABASE=patient_db
       - MYSQL_USER=patient_service_user
       - MYSQL_PASSWORD=patient_service_password
+
+networks:
+  patient_service_backend_network:
+    driver: bridge
+#    internal: true
 
 volumes:
   patient-db-data:
